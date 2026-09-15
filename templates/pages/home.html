@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная — Image Journey{% endblock %}
+
+{% block content %}
+<div class="text-center py-20">
+    <h1 class="text-5xl font-bold mb-4">
+        Добро пожаловать в
+        <span class="text-accent-400">Image Journey</span>
+    </h1>
+    <p class="text-ink-300 text-lg mb-8 max-w-2xl mx-auto">
+        Делись своими изображениями, собирай альбомы, находи вдохновение.
+    </p>
+    <a href="{% url 'posts:feed' %}" class="inline-block bg-accent-600 hover:bg-accent-500 text-white px-6 py-3 rounded-lg font-medium transition">
+        Смотреть ленту
+    </a>
+    
+</div>
+{% endblock %}

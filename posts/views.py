@@ -1,0 +1,118 @@
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
+from .forms import PostForm, CommentForm
+from .models import Post, Comment, Like, CommentLike, Tag
+
+def feed(request):
+    """Главная лента — все посты (свежие сверху)."""
+    posts = Post.objects.select_related('author').prefetch_related('tags', 'likes')
+    return render(request, 'posts/feed.html', {'posts': posts})
+
+
+def post_detail(request, pk):
+    post = get_object_or_404(
+        Post.objects.select_related('author').prefetch_related(
+            'tags', 'comments__author', 'comments__likes',
+        ),
+        pk=pk,
+    )
+    comments = post.comments.select_related('author').prefetch_related('likes')
+    form = CommentForm()
+    return render(request, 'posts/post_detail.html', {
+        'post': post,
+        'comments': comments,
+        'form': form,
+    })
+
+
+@login_required
+def post_create(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            form.save()          # сохранит пост И теги
+            messages.success(request, 'Пост опубликован!')
+            return redirect('posts:detail', pk=post.pk)
+    else:
+        form = PostForm()
+    return render(request, 'posts/post_create.html', {'form': form})
+
+@login_required
+@require_POST
+def toggle_post_like(request, pk):
+    """AJAX: поставить/снять лайк с поста."""
+    post = get_object_or_404(Post, pk=pk)
+    like, created = Like.objects.get_or_create(user=request.user, post=post)
+
+    if not created:
+        like.delete()
+        liked = False
+    else:
+        liked = True
+
+    return JsonResponse({
+        'liked': liked,
+        'count': post.likes.count(),
+    })
+
+
+@login_required
+@require_POST
+def toggle_comment_like(request, pk):
+    """AJAX: поставить/снять лайк с комментария."""
+    comment = get_object_or_404(Comment, pk=pk)
+    like, created = CommentLike.objects.get_or_create(
+        user=request.user, comment=comment,
+    )
+
+    if not created:
+        like.delete()
+        liked = False
+    else:
+        liked = True
+
+    return JsonResponse({
+        'liked': liked,
+        'count': comment.likes.count(),
+    })
+
+@login_required
+@require_POST
+def comment_create(request, pk):
+    """Добавить комментарий к посту."""
+    post = get_object_or_404(Post, pk=pk)
+    form = CommentForm(request.POST)
+
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+        messages.success(request, 'Комментарий добавлен')
+    else:
+        messages.error(request, 'Комментарий не может быть пустым')
+
+    return redirect('posts:detail', pk=post.pk)
+
+def search(request):
+    """Поиск постов по заголовку, описанию и тегам."""
+    query = request.GET.get('q', '').strip()
+    posts = Post.objects.none()  # пустой QuerySet по умолчанию
+
+    if query:
+        posts = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).select_related('author').prefetch_related('tags', 'likes').distinct()
+
+    return render(request, 'posts/search.html', {
+        'query': query,
+        'posts': posts,
+    })

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход — Image Journey{% endblock %}
+
+{% block content %}
+
+<div class="max-w-md mx-auto">
+    <h1 class="text-3xl font-bold mb-2">Вход</h1>
+    <p class="text-ink-500 mb-8">
+        Нет аккаунта?
+        <a href="{% url 'accounts:register' %}"
+           class="text-accent-400 hover:text-accent-300">Зарегистрироваться</a>
+    </p>
+
+    <form method="post"
+          class="space-y-5 bg-surface-700 p-6 rounded-2xl border border-surface-600">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div class="bg-red-900/30 border border-red-500/50 text-red-200
+                        p-3 rounded-lg text-sm">
+                Неверное имя пользователя или пароль
+            </div>
+        {% endif %}
+
+        <div>
+            <label for="{{ form.username.id_for_label }}"
+                   class="block text-sm font-medium text-ink-300 mb-2">
+                Имя пользователя
+            </label>
+            <input type="text"
+                   name="username"
+                   id="{{ form.username.id_for_label }}"
+                   autofocus
+                   required
+                   class="w-full bg-surface-700 border border-surface-600 rounded-lg
+                          px-4 py-2.5 text-ink-100 placeholder-ink-500
+                          focus:outline-none focus:border-accent-500 transition">
+        </div>
+
+        <div>
+            <label for="{{ form.password.id_for_label }}"
+                   class="block text-sm font-medium text-ink-300 mb-2">
+                Пароль
+            </label>
+            <input type="password"
+                   name="password"
+                   id="{{ form.password.id_for_label }}"
+                   required
+                   class="w-full bg-surface-700 border border-surface-600 rounded-lg
+                          px-4 py-2.5 text-ink-100 placeholder-ink-500
+                          focus:outline-none focus:border-accent-500 transition">
+        </div>
+
+        <button type="submit"
+                class="w-full bg-accent-600 hover:bg-accent-500 text-white
+                       px-6 py-2.5 rounded-lg font-medium transition">
+            Войти
+        </button>
+    </form>
+</div>
+
+{% endblock %}

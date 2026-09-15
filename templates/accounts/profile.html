@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_user.username }} — Image Journey{% endblock %}
+
+{% block content %}
+
+<!-- Шапка профиля -->
+<div class="bg-surface-700 rounded-2xl p-6 mb-8 border border-surface-600">
+    <div class="flex items-start gap-6">
+
+        <!-- Аватар -->
+        {% if profile_user.avatar %}
+            <img src="{{ profile_user.avatar.url }}"
+                 alt="{{ profile_user.username }}"
+                 class="w-24 h-24 rounded-full object-cover ring-2 ring-surface-600">
+        {% else %}
+            <div class="w-24 h-24 rounded-full bg-accent-600 flex items-center
+                        justify-center text-white text-3xl font-bold
+                        ring-2 ring-surface-600 shrink-0">
+                {{ profile_user.username|first|upper }}
+            </div>
+        {% endif %}
+
+        <!-- Инфо -->
+        <div class="flex-1">
+            <h1 class="text-3xl font-bold text-accent-400 mb-2">
+                {{ profile_user.username }}
+            </h1>
+            <p class="text-ink-500 text-sm mb-3">
+                На сайте с {{ profile_user.date_joined|date:"d.m.Y" }}
+                · Постов: {{ posts.count }}
+            </p>
+            {% if profile_user.bio %}
+                <p class="text-ink-300 whitespace-pre-line">{{ profile_user.bio }}</p>
+            {% else %}
+                <p class="text-ink-500 italic">Пользователь пока ничего о себе не рассказал</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Форма редактирования (только для своего профиля) -->
+{% if is_own_profile %}
+    <div class="bg-surface-700 rounded-2xl p-6 mb-8 border border-surface-600">
+        <h2 class="text-xl font-semibold mb-4">Редактировать профиль</h2>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-sm font-medium text-ink-300 mb-2">
+                    Аватар
+                </label>
+                {{ form.avatar }}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-ink-300 mb-2">
+                    О себе
+                </label>
+                {{ form.bio }}
+            </div>
+
+            <button type="submit"
+                    class="bg-accent-600 hover:bg-accent-500 text-white
+                           px-6 py-2.5 rounded-lg font-medium transition">
+                Сохранить
+            </button>
+        </form>
+    </div>
+{% endif %}
+
+<!-- Посты пользователя -->
+<h2 class="text-2xl font-bold mb-6">Посты</h2>
+
+{% if posts %}
+    <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 [column-fill:balance]">
+        {% for post in posts %}
+            <a href="{% url 'posts:detail' post.pk %}"
+               class="block mb-4 break-inside-avoid group">
+                <div class="bg-surface-700 rounded-xl overflow-hidden
+                            hover:ring-2 hover:ring-accent-500 transition">
+                    <img src="{{ post.image.url }}"
+                         alt="{{ post.title|default:'Пост' }}"
+                         loading="lazy"
+                         class="w-full h-auto block">
+                    <div class="p-4">
+                        {% if post.title %}
+                            <h3 class="font-semibold text-ink-100 mb-1 line-clamp-2">
+                                {{ post.title }}
+                            </h3>
+                        {% endif %}
+                        <div class="flex items-center justify-between text-sm text-ink-500 mt-2">
+                            <span>♥ {{ post.likes_count }}</span>
+                            <span>💬 {{ post.comments_count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-16">
+        <p class="text-ink-500">
+            {% if is_own_profile %}
+                Ты пока ничего не загрузил.
+                <a href="{% url 'posts:create' %}"
+                   class="text-accent-400 hover:text-accent-300">Загрузи первый пост</a>.
+            {% else %}
+                У пользователя пока нет постов.
+            {% endif %}
+        </p>
+    </div>
+{% endif %}
+
+{% endblock %}

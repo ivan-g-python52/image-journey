@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* Где искать классы — сканируем все шаблоны и .py файлы проекта */
+@source "../../../templates";
+@source "../../../accounts";
+@source "../../../pages";
+@source "../../../posts";
+@source "../../../accounts/templates";
+
+@theme {
+    /* Наша тёмная палитра */
+    --color-surface-900: #0f0f11;
+    --color-surface-800: #17171a;
+    --color-surface-700: #1f1f24;
+    --color-surface-600: #2a2a31;
+    --color-surface-500: #3a3a44;
+
+    --color-ink-100: #f5f5f7;
+    --color-ink-300: #c4c4cc;
+    --color-ink-500: #8a8a94;
+
+    --color-accent-300: #c4b5fd;
+    --color-accent-400: #a78bfa;
+    --color-accent-500: #8b5cf6;
+    --color-accent-600: #7c3aed;
+    --color-accent-700: #6d28d9;
+
+    --font-sans: 'Inter', system-ui, sans-serif;
+}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Регистрация — Image Journey{% endblock %}
+
+{% block content %}
+
+<div class="max-w-md mx-auto">
+    <h1 class="text-3xl font-bold mb-2">Регистрация</h1>
+    <p class="text-ink-500 mb-8">
+        Уже есть аккаунт?
+        <a href="{% url 'accounts:login' %}"
+           class="text-accent-400 hover:text-accent-300">Войти</a>
+    </p>
+
+    <form method="post"
+          class="space-y-5 bg-surface-700 p-6 rounded-2xl border border-surface-600">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="bg-red-900/30 border border-red-500/50 text-red-200
+                        p-3 rounded-lg text-sm">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}"
+                       class="block text-sm font-medium text-ink-300 mb-2">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ field.errors.0 }}</p>
+                {% endif %}
+                {% if field.help_text %}
+                    <p class="text-ink-500 text-xs mt-1">{{ field.help_text|safe }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit"
+                class="w-full bg-accent-600 hover:bg-accent-500 text-white
+                       px-6 py-2.5 rounded-lg font-medium transition">
+            Создать аккаунт
+        </button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Загрузить пост — Image Journey{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Загрузить пост</h1>
+
+    <form method="post" enctype="multipart/form-data"
+          class="space-y-6 bg-surface-700 p-6 rounded-2xl border border-surface-600">
+        {% csrf_token %}
+
+        <!-- Ошибки формы -->
+        {% if form.non_field_errors %}
+            <div class="bg-red-900/30 border border-red-500/50 text-red-200
+                        p-3 rounded-lg text-sm">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- Картинка -->
+        <div>
+            <label class="block text-sm font-medium text-ink-300 mb-2">
+                Изображение *
+            </label>
+            {{ form.image }}
+            {% if form.image.errors %}
+                <p class="text-red-400 text-sm mt-1">{{ form.image.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Заголовок -->
+        <div>
+            <label class="block text-sm font-medium text-ink-300 mb-2">
+                Заголовок
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <p class="text-red-400 text-sm mt-1">{{ form.title.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Описание -->
+        <div>
+            <label class="block text-sm font-medium text-ink-300 mb-2">
+                Описание
+            </label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <p class="text-red-400 text-sm mt-1">{{ form.description.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Теги -->
+        <div>
+            <label class="block text-sm font-medium text-ink-300 mb-2">
+                {{ form.tags_input.label }}
+            </label>
+            {{ form.tags_input }}
+            <p class="text-ink-500 text-xs mt-1">{{ form.tags_input.help_text }}</p>
+            {% if form.tags_input.errors %}
+                <p class="text-red-400 text-sm mt-1">{{ form.tags_input.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Кнопки -->
+        <div class="flex gap-3 pt-2">
+            <button type="submit"
+                    class="bg-accent-600 hover:bg-accent-500 text-white
+                           px-6 py-2.5 rounded-lg font-medium transition">
+                Опубликовать
+            </button>
+            <a href="{% url 'posts:feed' %}"
+               class="text-ink-300 hover:text-ink-100 px-6 py-2.5 transition">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

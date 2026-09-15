@@ -1,0 +1,106 @@
+{% load static %}
+{% load tailwind_tags %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Image Journey{% endblock %}</title>
+
+    {% tailwind_css %}
+</head>
+<body class="bg-surface-800 text-ink-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Навигация -->
+    <header class="bg-surface-900 border-b border-surface-600 sticky top-0 z-50">
+    <nav class="w-full px-6 py-3 flex items-center gap-4">
+
+        <!-- Логотип слева -->
+        <a href="{% url 'pages:home' %}"
+           class="text-xl font-bold text-accent-400 hover:text-accent-300 transition shrink-0">
+            Image Journey
+        </a>
+
+        <!-- Поиск по центру -->
+        <form action="{% url 'posts:search' %}" method="get"
+              class="flex-1 max-w-xl mx-auto">
+            <div class="relative">
+                <input type="search"
+                       name="q"
+                       value="{{ request.GET.q|default:'' }}"
+                       placeholder="Поиск по постам и тегам..."
+                       class="w-full bg-surface-800 border border-surface-600 rounded-full
+                              pl-10 pr-4 py-2 text-sm text-ink-100 placeholder-ink-500
+                              focus:outline-none focus:border-accent-500 transition">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500 text-sm">
+                    🔍
+                </span>
+            </div>
+        </form>
+
+        <!-- Кнопки справа -->
+        <div class="flex items-center gap-5 shrink-0">
+            <a href="{% url 'posts:feed' %}"
+               class="text-ink-300 hover:text-ink-100 transition">Лента</a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'posts:create' %}"
+                   class="bg-accent-600 hover:bg-accent-500 text-white
+                          px-4 py-2 rounded-lg font-medium transition text-sm">
+                    + Загрузить
+                </a>
+
+                <a href="{% url 'accounts:profile' user.username %}" class="flex items-center gap-2 group pl-2 border-l border-surface-600">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}"
+                             alt="{{ user.username }}"
+                             class="w-9 h-9 rounded-full object-cover
+                                    ring-2 ring-surface-600 group-hover:ring-accent-500 transition">
+                    {% else %}
+                        <div class="w-9 h-9 rounded-full bg-accent-600 flex items-center
+                                    justify-center text-white font-semibold
+                                    ring-2 ring-surface-600 group-hover:ring-accent-500 transition">
+                            {{ user.username|first|upper }}
+                        </div>
+                    {% endif %}
+                    <span class="text-accent-400 group-hover:text-accent-300 font-medium transition">
+                        {{ user.username }}
+                    </span>
+                </a>
+
+                <form action="{% url 'accounts:logout' %}" method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="text-ink-500 hover:text-ink-100 transition text-sm">
+                        Выйти
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'accounts:login' %}"
+                class="text-ink-300 hover:text-ink-100 transition">Войти</a>
+                <a href="{% url 'accounts:register' %}"
+                class="bg-accent-600 hover:bg-accent-500 text-white
+                        px-4 py-2 rounded-lg font-medium transition text-sm">
+                    Регистрация
+                </a>
+                </a>
+            {% endif %}
+        </div>
+
+    </nav>
+</header>
+
+    <!-- Контент -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Футер -->
+    <footer class="border-t border-surface-600 mt-12">
+        <div class="max-w-7xl mx-auto px-6 py-6 text-sm text-ink-500">
+            © 2025 Image Journey. Все права защищены.
+        </div>
+    </footer>
+    <script src="{% static 'posts/js/likes.js' %}" defer></script>
+</body>
+</html>
