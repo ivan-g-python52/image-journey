@@ -105,9 +105,9 @@
                     <div class="bg-surface-700 rounded-xl overflow-hidden
                                 hover:ring-2 hover:ring-accent-500 transition">
                         <img src="{{ post.image.url }}"
-                             alt="{{ post.title|default:'Пост' }}"
-                             loading="lazy"
-                             class="w-full h-auto block">
+                            alt="{{ post.title|default:'Пост' }}"
+                            loading="lazy"
+                            class="w-full h-auto block max-h-150 object-cover">
                         <div class="p-4">
                             {% if post.title %}
                                 <h3 class="font-semibold text-ink-100 mb-1 line-clamp-2">
