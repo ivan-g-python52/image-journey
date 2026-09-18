@@ -6,15 +6,14 @@
 
 {% block content %}
 
+<!-- Заголовок результатов -->
 <div class="mb-8">
     {% if query %}
-        <h1 class="text-3xl font-bold mb-2">
-            Результаты поиска
-        </h1>
+        <h1 class="text-3xl font-bold mb-2">Результаты поиска</h1>
         <p class="text-ink-500">
             По запросу <span class="text-accent-400">«{{ query }}»</span>
-            найдено: <span class="text-ink-300">{{ posts.count }}</span>
-            {% if posts.count == 1 %}пост{% elif posts.count < 5 %}поста{% else %}постов{% endif %}
+            найдено: <span class="text-ink-300">{{ total_count }}</span>
+            {% if total_count == 1 %}пост{% elif total_count < 5 %}поста{% else %}постов{% endif %}
         </p>
     {% else %}
         <h1 class="text-3xl font-bold mb-2">Поиск</h1>
@@ -24,18 +23,31 @@
     {% endif %}
 </div>
 
-{% if posts %}
+{% if page_obj.paginator.count == 0 %}
+    {% if query %}
+        <!-- Ничего не найдено -->
+        <div class="text-center py-20">
+            <p class="text-ink-300 text-lg mb-2">Ничего не найдено 😔</p>
+            <p class="text-ink-500 text-sm mb-6">
+                Попробуй другой запрос или посмотри
+                <a href="{% url 'posts:feed' %}"
+                   class="text-accent-400 hover:text-accent-300">ленту</a>.
+            </p>
+        </div>
+    {% endif %}
+{% else %}
+    <!-- Masonry-сетка результатов -->
     <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 [column-fill:balance]">
-        {% for post in posts %}
+        {% for post in page_obj %}
             <a href="{% url 'posts:detail' post.pk %}"
                class="block mb-4 break-inside-avoid group">
                 <div class="bg-surface-700 rounded-xl overflow-hidden
                             hover:ring-2 hover:ring-accent-500 transition">
 
                     <img src="{{ post.image.url }}"
-                         alt="{{ post.title|default:'Пост' }}"
-                         loading="lazy"
-                         class="w-full h-auto block">
+                        alt="{{ post.title|default:'Пост' }}"
+                        loading="lazy"
+                        class="w-full h-auto block max-h-150 object-cover">
 
                     <div class="p-4">
                         {% if post.title %}
@@ -45,17 +57,28 @@
                         {% endif %}
 
                         <div class="flex items-center justify-between text-sm text-ink-500 mt-2">
-                            <span>{{ post.author.username }}</span>
-                            <span>♥ {{ post.likes_count }}</span>
+                            <span onclick="event.stopPropagation(); window.location.href='{% url 'accounts:profile' post.author.username %}';"
+                                class="hover:text-accent-400 transition cursor-pointer">
+                                {{ post.author.username }}
+                            </span>
+                            <button type="button"
+                                    class="feed-like-btn flex items-center gap-1 px-2 py-0.5 rounded
+                                           hover:text-accent-400 transition"
+                                    data-url="{% url 'posts:toggle_like' post.pk %}"
+                                    data-liked="{% if user.is_authenticated and user in post.likes.all %}true{% else %}false{% endif %}">
+                                <span class="heart">♥</span>
+                                <span class="count">{{ post.likes_count }}</span>
+                            </button>
                         </div>
 
                         {% if post.tags.all %}
-                            <div class="flex flex-wrap gap-2 mb-8">
+                            <div class="flex flex-wrap gap-1 mt-3">
                                 {% for tag in post.tags.all %}
                                     <a href="{% url 'posts:search' %}?q={{ tag.name|urlencode }}"
-                                    class="bg-surface-700 text-accent-300 hover:bg-accent-600
-                                            hover:text-white px-3 py-1 rounded-full text-sm
-                                            border border-surface-600 hover:border-accent-500 transition">
+                                       onclick="event.stopPropagation();"
+                                       class="text-xs bg-surface-600 text-accent-300
+                                              hover:bg-accent-600 hover:text-white
+                                              px-2 py-0.5 rounded-full transition">
                                         #{{ tag.name }}
                                     </a>
                                 {% endfor %}
@@ -66,14 +89,33 @@
             </a>
         {% endfor %}
     </div>
-{% elif query %}
-    <div class="text-center py-20">
-        <p class="text-ink-300 text-lg mb-2">Ничего не найдено 😔</p>
-        <p class="text-ink-500 text-sm mb-6">
-            Попробуй другой запрос или посмотри <a href="{% url 'posts:feed' %}"
-            class="text-accent-400 hover:text-accent-300">ленту</a>.
-        </p>
-    </div>
+
+    <!-- Пагинация с сохранением q -->
+    {% if page_obj.has_other_pages %}
+        <div class="flex items-center justify-center gap-2 mt-10">
+            {% if page_obj.has_previous %}
+                <a href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}"
+                   class="px-4 py-2 rounded-lg border border-surface-600
+                          text-ink-300 hover:border-accent-500
+                          hover:text-accent-300 transition">
+                    ← Назад
+                </a>
+            {% endif %}
+
+            <span class="px-4 py-2 text-ink-500">
+                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}"
+                   class="px-4 py-2 rounded-lg border border-surface-600
+                          text-ink-300 hover:border-accent-500
+                          hover:text-accent-300 transition">
+                    Вперёд →
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
 {% endif %}
 
 {% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if action == 'create' %}Создать альбом{% else %}Редактировать альбом{% endif %} — Image Journey
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">
+        {% if action == 'create' %}Создать альбом{% else %}Редактировать альбом{% endif %}
+    </h1>
+
+    <form method="post"
+          class="space-y-6 bg-surface-700 p-6 rounded-2xl border border-surface-600">
+        {% csrf_token %}
+
+        <div>
+            <label class="block text-sm font-medium text-ink-300 mb-2">
+                Название
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <p class="text-red-400 text-sm mt-1">{{ form.title.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-ink-300 mb-2">
+                Описание
+            </label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <p class="text-red-400 text-sm mt-1">{{ form.description.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="flex items-center gap-3">
+            {{ form.is_public }}
+            <label for="{{ form.is_public.id_for_label }}"
+                   class="text-sm text-ink-300 cursor-pointer">
+                Публичный альбом
+                <span class="text-ink-500 text-xs block">
+                    Если снять галочку — альбом увидишь только ты
+                </span>
+            </label>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+            <button type="submit"
+                    class="bg-accent-600 hover:bg-accent-500 text-white
+                           px-6 py-2.5 rounded-lg font-medium transition">
+                {% if action == 'create' %}Создать{% else %}Сохранить{% endif %}
+            </button>
+            <a href="{% if album %}{% url 'albums:detail' album.pk %}{% else %}{% url 'albums:list' %}{% endif %}"
+               class="text-ink-300 hover:text-ink-100 px-6 py-2.5 transition">
+                Отмена
+            </a>
+        </div>
+    </form>
+
+    {% if action == 'edit' %}
+        <div class="mt-8 pt-6 border-t border-surface-600">
+            <form method="post" action="{% url 'albums:delete' album.pk %}"
+                  onsubmit="return confirm('Удалить альбом навсегда? Посты останутся на сайте, удалится только альбом.');">
+                {% csrf_token %}
+                <button type="submit"
+                        class="text-red-400 hover:text-red-300 text-sm transition">
+                    Удалить альбом
+                </button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

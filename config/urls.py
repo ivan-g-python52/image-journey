@@ -7,7 +7,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('pages.urls')),
     path('posts/', include('posts.urls')),
-    path('accounts/', include('accounts.urls')),   # <- добавили
+    path('albums/', include('albums.urls')),
+    path('accounts/', include('accounts.urls')),
 ]
 
 # Внутри if settings.DEBUG:

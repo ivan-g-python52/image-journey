@@ -41,7 +41,9 @@
         <!-- Кнопки справа -->
         <div class="flex items-center gap-5 shrink-0">
             <a href="{% url 'posts:feed' %}"
-               class="text-ink-300 hover:text-ink-100 transition">Лента</a>
+                class="text-ink-300 hover:text-ink-100 transition">Лента</a>
+            <a href="{% url 'albums:list' %}"
+                class="text-ink-300 hover:text-ink-100 transition">Альбомы</a>
 
             {% if user.is_authenticated %}
                 <a href="{% url 'posts:create' %}"
@@ -102,5 +104,6 @@
         </div>
     </footer>
     <script src="{% static 'posts/js/likes.js' %}" defer></script>
+    <script src="{% static 'posts/js/albums.js' %}"defer></script>
 </body>
 </html>

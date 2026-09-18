@@ -16,6 +16,10 @@ class PostForm(forms.ModelForm):
         }),
         help_text='Введите теги через запятую или пробел',
     )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['image'].required = False
 
     class Meta:
         model = Post
